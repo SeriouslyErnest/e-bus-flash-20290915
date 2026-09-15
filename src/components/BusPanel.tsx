@@ -64,14 +64,33 @@ function ServiceRow({ service }: { service: BusService }) {
   );
 }
 
+const ACCENTS = {
+  cyan: {
+    stripe: "bg-cyan-400",
+    header: "text-cyan-300",
+    glow: "shadow-[0_0_0_1px_oklch(0.75_0.15_200_/_0.4),inset_4px_0_0_0_oklch(0.75_0.15_200)]",
+    tag: "bg-cyan-400/15 text-cyan-300 ring-1 ring-cyan-400/40",
+  },
+  amber: {
+    stripe: "bg-amber-400",
+    header: "text-amber-300",
+    glow: "shadow-[0_0_0_1px_oklch(0.8_0.16_75_/_0.4),inset_4px_0_0_0_oklch(0.8_0.16_75)]",
+    tag: "bg-amber-400/15 text-amber-300 ring-1 ring-amber-400/40",
+  },
+} as const;
+
+export type AccentKey = keyof typeof ACCENTS;
+
 export function BusPanel({
   stopId,
   serviceNos,
   title,
+  accent = "cyan",
 }: {
   stopId: string;
   serviceNos: string[];
   title: string;
+  accent?: AccentKey;
 }) {
   const { data, isLoading, isError, dataUpdatedAt } = useQuery({
     queryKey: ["arrivals", stopId],
@@ -80,15 +99,19 @@ export function BusPanel({
   });
 
   const services = (data ?? []).filter((s) => serviceNos.includes(s.no));
+  const a = ACCENTS[accent];
 
   return (
-    <section className="flex flex-col gap-3 self-start rounded-3xl border border-border bg-card p-4 md:flex-1 md:self-stretch w-full">
-      <header className="flex items-baseline justify-between gap-2">
+    <section className={cn("flex flex-col gap-3 self-start rounded-3xl bg-card p-4 md:flex-1 md:self-stretch w-full", a.glow)}>
+      <header className="flex items-center justify-between gap-2">
         <div className="min-w-0">
-          <h2 className="truncate text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+          <span className={cn("inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest", a.tag)}>
+            <span className={cn("h-1.5 w-1.5 rounded-full", a.stripe)} />
+            Stop {stopId}
+          </span>
+          <h2 className={cn("mt-1.5 truncate text-lg font-extrabold uppercase tracking-wide", a.header)}>
             {title}
           </h2>
-          <p className="text-xs text-muted-foreground">Stop {stopId}</p>
         </div>
         {dataUpdatedAt > 0 && (
           <span className="shrink-0 text-[10px] text-muted-foreground">
