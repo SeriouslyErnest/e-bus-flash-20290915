@@ -1,24 +1,33 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { BusPanel } from "@/components/BusPanel";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Bus Timings — SG Arrivals" },
+      {
+        name: "description",
+        content:
+          "Live Singapore bus arrivals for your regular stops, with flashing alerts when it's time to leave.",
+      },
+      { property: "og:title", content: "Bus Timings — SG Arrivals" },
+      {
+        property: "og:description",
+        content:
+          "Live Singapore bus arrivals for your regular stops, with flashing alerts when it's time to leave.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-4 p-4 md:flex-row">
+      <BusPanel stopId="69099" serviceNos={["148"]} title="Bus 148" />
+      <BusPanel stopId="61121" serviceNos={["107", "148"]} title="Bus 107 & 148" />
+    </main>
   );
 }
