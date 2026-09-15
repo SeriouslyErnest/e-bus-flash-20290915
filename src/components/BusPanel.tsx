@@ -82,7 +82,7 @@ export function BusPanel({
   const services = (data ?? []).filter((s) => serviceNos.includes(s.no));
 
   return (
-    <section className="flex flex-1 flex-col gap-3 rounded-3xl border border-border bg-card p-4">
+    <section className="flex flex-col gap-3 self-start rounded-3xl border border-border bg-card p-4 md:flex-1 md:self-stretch w-full">
       <header className="flex items-baseline justify-between gap-2">
         <div className="min-w-0">
           <h2 className="truncate text-sm font-semibold uppercase tracking-widest text-muted-foreground">
