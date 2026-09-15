@@ -12,7 +12,7 @@ function useNow() {
   return now;
 }
 
-function ArrivalCell({ isoTime, primary }: { isoTime?: string; primary?: boolean }) {
+function ArrivalCell({ isoTime, primary }: { isoTime: string | undefined; primary?: boolean }) {
   useNow();
   const mins = minutesUntil(isoTime);
 
