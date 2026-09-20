@@ -249,6 +249,15 @@ function ConfigPage() {
         >
           Update
         </button>
+        {(slot === "a" ? existingA : existingB) && (
+          <button
+            type="button"
+            onClick={clearPanel}
+            className="w-full rounded-full border-2 border-border px-6 py-3 text-sm font-bold text-muted-foreground"
+          >
+            Remove this panel
+          </button>
+        )}
         <p className="text-center text-xs text-muted-foreground">
           Tip: after updating, bookmark the page in your browser to save this setup.
         </p>
