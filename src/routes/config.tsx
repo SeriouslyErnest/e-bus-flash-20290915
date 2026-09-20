@@ -134,24 +134,27 @@ function ConfigPage() {
           1 · Which panel?
         </h2>
         <div className="grid grid-cols-2 gap-2">
-          {(["a", "b"] as Slot[]).map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => {
-                setSlot(s);
-                setAccent(s === "a" ? "cyan" : "amber");
-              }}
-              className={cn(
-                "rounded-2xl border-2 px-4 py-3 text-sm font-bold transition-colors",
-                slot === s
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border bg-card text-foreground",
-              )}
-            >
-              {s === "a" ? "Left panel" : "Right panel"}
-            </button>
-          ))}
+          {(["a", "b"] as Slot[]).map((s) => {
+            const existing = s === "a" ? existingA : existingB;
+            return (
+              <button
+                key={s}
+                type="button"
+                onClick={() => pickSlot(s)}
+                className={cn(
+                  "rounded-2xl border-2 px-4 py-3 text-sm font-bold transition-colors",
+                  slot === s
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-card text-foreground",
+                )}
+              >
+                {s === "a" ? "Left panel" : "Right panel"}
+                <span className="mt-0.5 block text-[10px] font-medium opacity-80">
+                  {existing ? `Stop ${existing.stopId}` : "Empty"}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </section>
 
