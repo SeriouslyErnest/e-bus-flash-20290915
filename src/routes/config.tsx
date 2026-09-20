@@ -216,7 +216,7 @@ function ConfigPage() {
       )}
 
       {/* 4. Colour */}
-      {services && services.length > 0 && (
+      {busOptions.length > 0 && (
         <section className="flex flex-col gap-2">
           <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
             4 · Panel colour
