@@ -193,7 +193,7 @@ function ConfigPage() {
             3 · Tap your buses
           </h2>
           <div className="grid grid-cols-3 gap-2">
-            {services.map((no) => (
+            {busOptions.map((no) => (
               <button
                 key={no}
                 type="button"
