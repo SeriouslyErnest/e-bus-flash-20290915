@@ -12,11 +12,6 @@ const searchSchema = z.object({
   title: fallback(z.string(), "").default(""),
 });
 
-const DEFAULTS: [PanelConfig, PanelConfig] = [
-  { stopId: "69099", serviceNos: ["148"], title: "Bus 148" },
-  { stopId: "61121", serviceNos: ["104", "148"], title: "Bus 104 & 148" },
-];
-
 export const Route = createFileRoute("/")({
   validateSearch: zodValidator(searchSchema),
   head: ({ match }) => {
@@ -51,13 +46,10 @@ function Index() {
 
   const parsedLeft = parsePanel(a ?? "");
   const parsedRight = parsePanel(b ?? "");
-  const usingDefaults = a === undefined && b === undefined;
 
   const panels: Array<{ config: PanelConfig; accent: AccentKey }> = [];
-  const left = parsedLeft ?? (usingDefaults ? DEFAULTS[0] : null);
-  const right = parsedRight ?? (usingDefaults ? DEFAULTS[1] : null);
-  if (left) panels.push({ config: left, accent: left.accent ?? "cyan" });
-  if (right) panels.push({ config: right, accent: right.accent ?? "amber" });
+  if (parsedLeft) panels.push({ config: parsedLeft, accent: parsedLeft.accent ?? "cyan" });
+  if (parsedRight) panels.push({ config: parsedRight, accent: parsedRight.accent ?? "amber" });
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-4 p-4">
