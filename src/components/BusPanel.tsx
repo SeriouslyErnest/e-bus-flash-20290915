@@ -66,20 +66,45 @@ function ServiceRow({ service }: { service: BusService }) {
 
 const ACCENTS = {
   cyan: {
+    swatch: "bg-cyan-400",
     stripe: "bg-cyan-400",
     header: "text-cyan-300",
     glow: "shadow-[0_0_0_1px_oklch(0.75_0.15_200_/_0.4),inset_4px_0_0_0_oklch(0.75_0.15_200)]",
     tag: "bg-cyan-400/15 text-cyan-300 ring-1 ring-cyan-400/40",
   },
   amber: {
+    swatch: "bg-amber-400",
     stripe: "bg-amber-400",
     header: "text-amber-300",
     glow: "shadow-[0_0_0_1px_oklch(0.8_0.16_75_/_0.4),inset_4px_0_0_0_oklch(0.8_0.16_75)]",
     tag: "bg-amber-400/15 text-amber-300 ring-1 ring-amber-400/40",
   },
+  green: {
+    swatch: "bg-emerald-400",
+    stripe: "bg-emerald-400",
+    header: "text-emerald-300",
+    glow: "shadow-[0_0_0_1px_oklch(0.76_0.18_160_/_0.4),inset_4px_0_0_0_oklch(0.76_0.18_160)]",
+    tag: "bg-emerald-400/15 text-emerald-300 ring-1 ring-emerald-400/40",
+  },
+  rose: {
+    swatch: "bg-rose-400",
+    stripe: "bg-rose-400",
+    header: "text-rose-300",
+    glow: "shadow-[0_0_0_1px_oklch(0.72_0.2_15_/_0.4),inset_4px_0_0_0_oklch(0.72_0.2_15)]",
+    tag: "bg-rose-400/15 text-rose-300 ring-1 ring-rose-400/40",
+  },
 } as const;
 
 export type AccentKey = keyof typeof ACCENTS;
+
+export const ACCENT_KEYS = Object.keys(ACCENTS) as AccentKey[];
+
+export const ACCENT_SWATCH: Record<AccentKey, string> = {
+  cyan: ACCENTS.cyan.swatch,
+  amber: ACCENTS.amber.swatch,
+  green: ACCENTS.green.swatch,
+  rose: ACCENTS.rose.swatch,
+};
 
 export function BusPanel({
   stopId,
