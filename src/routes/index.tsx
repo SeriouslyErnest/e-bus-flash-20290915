@@ -42,9 +42,13 @@ export const Route = createFileRoute("/")({
 function Index() {
   const { a, b } = Route.useSearch();
 
+  const parsedLeft = parsePanel(a);
+  const parsedRight = parsePanel(b);
+  const usingDefaults = !parsedLeft && !parsedRight && !a.trim() && !b.trim();
+
   const panels: Array<{ config: PanelConfig; accent: AccentKey }> = [];
-  const left = parsePanel(a) ?? (a ? null : DEFAULTS[0]);
-  const right = parsePanel(b) ?? (b ? null : DEFAULTS[1]);
+  const left = parsedLeft ?? (usingDefaults ? DEFAULTS[0] : null);
+  const right = parsedRight ?? (usingDefaults ? DEFAULTS[1] : null);
   if (left) panels.push({ config: left, accent: left.accent ?? "cyan" });
   if (right) panels.push({ config: right, accent: right.accent ?? "amber" });
 
@@ -52,9 +56,12 @@ function Index() {
     <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-4 p-4">
       <div className="flex flex-col gap-4 md:flex-row">
         {panels.length === 0 && (
-          <p className="py-16 text-center text-sm text-muted-foreground">
-            Add panels via the URL, e.g. <code>?a=69099:148&b=61121:104,148</code>
-          </p>
+          <div className="w-full py-16 text-center">
+            <p className="text-base font-bold">No bus stops chosen yet</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Tap the button below to pick a bus stop and your buses.
+            </p>
+          </div>
         )}
         {panels.map(({ config, accent }) => (
           <BusPanel
