@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
-import { BusPanel, ACCENT_KEYS, type AccentKey } from "@/components/BusPanel";
+import { BusPanel, type AccentKey } from "@/components/BusPanel";
+import { parsePanel, type PanelConfig } from "@/lib/panel";
 
 const panelSchema = fallback(z.string(), "").default("");
 
@@ -9,30 +10,6 @@ const searchSchema = z.object({
   a: panelSchema,
   b: panelSchema,
 });
-
-type PanelConfig = {
-  stopId: string;
-  serviceNos: string[];
-  title: string;
-  accent?: AccentKey | undefined;
-};
-
-// Panel format: "stopId:svc1,svc2[:accent]" e.g. "61121:104,148:amber"
-function parsePanel(raw: string): PanelConfig | null {
-  const [stopId, services, accent] = raw.split(":");
-  if (!stopId || !/^\d{5}$/.test(stopId)) return null;
-  const serviceNos = (services ?? "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  if (serviceNos.length === 0) return null;
-  return {
-    stopId,
-    serviceNos,
-    title: serviceNos.length === 1 ? `Bus ${serviceNos[0]}` : `Bus ${serviceNos.join(" & ")}`,
-    accent: ACCENT_KEYS.includes(accent as AccentKey) ? (accent as AccentKey) : undefined,
-  };
-}
 
 const DEFAULTS: [PanelConfig, PanelConfig] = [
   { stopId: "69099", serviceNos: ["148"], title: "Bus 148" },
