@@ -68,25 +68,36 @@ function Index() {
   const panels: Array<{ config: PanelConfig; accent: AccentKey }> = [];
   const left = parsePanel(a) ?? (a ? null : DEFAULTS[0]);
   const right = parsePanel(b) ?? (b ? null : DEFAULTS[1]);
-  if (left) panels.push({ config: left, accent: "cyan" });
-  if (right) panels.push({ config: right, accent: "amber" });
+  if (left) panels.push({ config: left, accent: left.accent ?? "cyan" });
+  if (right) panels.push({ config: right, accent: right.accent ?? "amber" });
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-4 p-4 md:flex-row">
-      {panels.length === 0 && (
-        <p className="py-16 text-center text-sm text-muted-foreground">
-          Add panels via the URL, e.g. <code>?a=69099:148&b=61121:104,148</code>
-        </p>
-      )}
-      {panels.map(({ config, accent }) => (
-        <BusPanel
-          key={`${config.stopId}-${config.serviceNos.join(",")}`}
-          stopId={config.stopId}
-          serviceNos={config.serviceNos}
-          title={config.title}
-          accent={accent}
-        />
-      ))}
+    <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-4 p-4">
+      <div className="flex flex-col gap-4 md:flex-row">
+        {panels.length === 0 && (
+          <p className="py-16 text-center text-sm text-muted-foreground">
+            Add panels via the URL, e.g. <code>?a=69099:148&b=61121:104,148</code>
+          </p>
+        )}
+        {panels.map(({ config, accent }) => (
+          <BusPanel
+            key={`${config.stopId}-${config.serviceNos.join(",")}`}
+            stopId={config.stopId}
+            serviceNos={config.serviceNos}
+            title={config.title}
+            accent={accent}
+          />
+        ))}
+      </div>
+      <div className="pb-4 pt-2 text-center">
+        <Link
+          to="/config"
+          search={{ a, b }}
+          className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground"
+        >
+          Change stops &amp; buses
+        </Link>
+      </div>
     </main>
   );
 }
