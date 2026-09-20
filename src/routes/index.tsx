@@ -9,6 +9,7 @@ const panelSchema = fallback(z.string(), "").default("");
 const searchSchema = z.object({
   a: panelSchema,
   b: panelSchema,
+  title: fallback(z.string(), "").default(""),
 });
 
 const DEFAULTS: [PanelConfig, PanelConfig] = [
@@ -40,7 +41,8 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const { a, b } = Route.useSearch();
+  const { a, b, title } = Route.useSearch();
+  const pageTitle = title.trim().slice(0, 80);
 
   const parsedLeft = parsePanel(a);
   const parsedRight = parsePanel(b);
@@ -54,6 +56,11 @@ function Index() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-4 p-4">
+      {pageTitle && (
+        <h1 className="px-1 pt-2 text-center text-2xl font-extrabold md:text-3xl">
+          {pageTitle}
+        </h1>
+      )}
       <div className="flex flex-col gap-4 md:flex-row">
         {panels.length === 0 && (
           <div className="w-full py-16 text-center">
@@ -76,7 +83,7 @@ function Index() {
       <div className="pb-4 pt-2 text-center">
         <Link
           to="/config"
-          search={{ a, b }}
+          search={{ a, b, title }}
           className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground"
         >
           Change stops &amp; buses
