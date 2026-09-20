@@ -47,30 +47,45 @@ function ConfigPage() {
   const { a, b } = Route.useSearch();
   const navigate = useNavigate();
 
+  const existingA = parsePanel(a);
+  const existingB = parsePanel(b);
+
   const [slot, setSlot] = useState<Slot>("a");
-  const [stopId, setStopId] = useState("");
+  const [stopId, setStopId] = useState(existingA?.stopId ?? "");
   const [services, setServices] = useState<string[] | null>(null);
-  const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [accent, setAccent] = useState<AccentKey>("cyan");
+  const [selected, setSelected] = useState<Set<string>>(
+    () => new Set(existingA?.serviceNos ?? []),
+  );
+  const [accent, setAccent] = useState<AccentKey>(existingA?.accent ?? "cyan");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const stopValid = /^\d{5}$/.test(stopId);
+  const stopValid = STOP_ID_RE.test(stopId);
   const canUpdate = stopValid && selected.size > 0;
 
+  function pickSlot(s: Slot) {
+    setSlot(s);
+    const existing = s === "a" ? existingA : existingB;
+    setStopId(existing?.stopId ?? "");
+    setSelected(new Set(existing?.serviceNos ?? []));
+    setAccent(existing?.accent ?? (s === "a" ? "cyan" : "amber"));
+    setServices(null);
+    setError(null);
+  }
+
   async function loadBuses() {
-    if (!stopValid) return;
+    if (!stopValid || loading) return;
     setLoading(true);
     setError(null);
     setServices(null);
-    setSelected(new Set());
     try {
       const data = await fetchArrivals(stopId);
-      const nos = data.map((s) => s.no);
+      const nos = Array.from(new Set(data.map((s) => s.no)));
       if (nos.length === 0) {
         setError("No buses found at that stop. Check the 5-digit code on the bus stop sign.");
       }
       setServices(nos);
+      setSelected((prev) => new Set([...prev].filter((no) => nos.includes(no))));
     } catch {
       setError("Couldn't reach the bus stop. Check the code and try again.");
     } finally {
@@ -88,10 +103,18 @@ function ConfigPage() {
   }
 
   function update() {
-    const value = `${stopId}:${[...selected].join(",")}:${accent}`;
+    if (!canUpdate) return;
+    const value = serializePanel(stopId, [...selected], accent);
     navigate({
       to: "/",
       search: slot === "a" ? { a: value, b } : { a, b: value },
+    });
+  }
+
+  function clearPanel() {
+    navigate({
+      to: "/",
+      search: slot === "a" ? { a: "", b } : { a, b: "" },
     });
   }
 
