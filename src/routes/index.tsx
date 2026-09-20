@@ -19,24 +19,29 @@ const DEFAULTS: [PanelConfig, PanelConfig] = [
 
 export const Route = createFileRoute("/")({
   validateSearch: zodValidator(searchSchema),
-  head: () => ({
-    meta: [
-      { title: "Bus Timings — SG Arrivals" },
-      {
-        name: "description",
-        content:
-          "Live Singapore bus arrivals for your regular stops, with flashing alerts when it's time to leave.",
-      },
-      { property: "og:title", content: "Bus Timings — SG Arrivals" },
-      {
-        property: "og:description",
-        content:
-          "Live Singapore bus arrivals for your regular stops, with flashing alerts when it's time to leave.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
+  head: ({ match }) => {
+    const rawTitle = (match.search as { title?: string }).title;
+    const pageTitle = (rawTitle ?? "").trim().slice(0, 80);
+    const docTitle = pageTitle || "Bus Timings — SG Arrivals";
+    return {
+      meta: [
+        { title: docTitle },
+        {
+          name: "description",
+          content:
+            "Live Singapore bus arrivals for your regular stops, with flashing alerts when it's time to leave.",
+        },
+        { property: "og:title", content: docTitle },
+        {
+          property: "og:description",
+          content:
+            "Live Singapore bus arrivals for your regular stops, with flashing alerts when it's time to leave.",
+        },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary" },
+      ],
+    };
+  },
   component: Index,
 });
 
