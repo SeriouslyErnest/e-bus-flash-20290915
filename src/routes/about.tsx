@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -21,6 +21,7 @@ export const Route = createFileRoute("/about")({
 });
 
 function AboutPage() {
+  const router = useRouter();
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-md flex-col gap-6 p-4 pb-10">
       <header className="pt-2 text-center">
@@ -87,13 +88,13 @@ function AboutPage() {
 
       <p className="text-center text-xs text-muted-foreground">Last updated: 20 September 2026</p>
 
-      <Link
-        to="/"
-        search={{ a: "", b: "" }}
+      <button
+        type="button"
+        onClick={() => router.history.back()}
         className="text-center text-sm font-medium text-muted-foreground underline underline-offset-4"
       >
         Back to bus timings
-      </Link>
+      </button>
     </main>
   );
 }
