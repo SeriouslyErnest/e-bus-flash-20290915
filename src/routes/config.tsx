@@ -119,6 +119,9 @@ function ConfigPage() {
     });
   }
 
+  const busOptions = services ?? [...selected];
+
+
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-md flex-col gap-6 p-4 pb-10">
       <header className="pt-2 text-center">
