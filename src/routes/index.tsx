@@ -4,7 +4,7 @@ import { z } from "zod";
 import { BusPanel, type AccentKey } from "@/components/BusPanel";
 import { parsePanel, type PanelConfig } from "@/lib/panel";
 
-const panelSchema = fallback(z.string(), "").default("");
+const panelSchema = fallback(z.string(), "").optional();
 
 const searchSchema = z.object({
   a: panelSchema,
@@ -44,9 +44,9 @@ function Index() {
   const { a, b, title } = Route.useSearch();
   const pageTitle = title.trim().slice(0, 80);
 
-  const parsedLeft = parsePanel(a);
-  const parsedRight = parsePanel(b);
-  const usingDefaults = !parsedLeft && !parsedRight && !a.trim() && !b.trim();
+  const parsedLeft = parsePanel(a ?? "");
+  const parsedRight = parsePanel(b ?? "");
+  const usingDefaults = a === undefined && b === undefined;
 
   const panels: Array<{ config: PanelConfig; accent: AccentKey }> = [];
   const left = parsedLeft ?? (usingDefaults ? DEFAULTS[0] : null);
@@ -83,7 +83,7 @@ function Index() {
       <div className="pb-4 pt-2 text-center">
         <Link
           to="/config"
-          search={{ a, b, title }}
+          search={{ a: a ?? "", b: b ?? "", title }}
           className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground"
         >
           Change stops &amp; buses

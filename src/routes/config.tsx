@@ -7,7 +7,7 @@ import { parsePanel, serializePanel } from "@/lib/panel";
 import { ACCENT_KEYS, ACCENT_SWATCH, type AccentKey } from "@/components/BusPanel";
 import { cn } from "@/lib/utils";
 
-const panelSchema = fallback(z.string(), "").default("");
+const panelSchema = fallback(z.string(), "").optional();
 
 const searchSchema = z.object({
   a: panelSchema,
@@ -48,9 +48,11 @@ export const Route = createFileRoute("/config")({
 function ConfigPage() {
   const { a, b, title } = Route.useSearch();
   const navigate = useNavigate();
+  const panelA = a ?? "";
+  const panelB = b ?? "";
 
-  const existingA = parsePanel(a);
-  const existingB = parsePanel(b);
+  const existingA = parsePanel(panelA);
+  const existingB = parsePanel(panelB);
 
   const [slot, setSlot] = useState<Slot>("a");
   const [stopId, setStopId] = useState(existingA?.stopId ?? "");
@@ -112,15 +114,18 @@ function ConfigPage() {
       to: "/",
       search:
         slot === "a"
-          ? { a: value, b, title: pageTitle.trim() }
-          : { a, b: value, title: pageTitle.trim() },
+          ? { a: value, b: panelB, title: pageTitle.trim() }
+          : { a: panelA, b: value, title: pageTitle.trim() },
     });
   }
 
   function clearPanel() {
     navigate({
       to: "/",
-      search: slot === "a" ? { a: "", b, title } : { a, b: "", title },
+      search:
+        slot === "a"
+          ? { a: "", b: panelB, title: pageTitle.trim() }
+          : { a: panelA, b: "", title: pageTitle.trim() },
     });
   }
 
@@ -194,7 +199,12 @@ function ConfigPage() {
         <div className="flex gap-2">
           <input
             value={stopId}
-            onChange={(e) => setStopId(e.target.value.replace(/\D/g, "").slice(0, 5))}
+            onChange={(e) => {
+              setStopId(e.target.value.replace(/\D/g, "").slice(0, 5));
+              setServices(null);
+              setSelected(new Set());
+              setError(null);
+            }}
             inputMode="numeric"
             placeholder="e.g. 69099"
             className="min-w-0 flex-1 rounded-2xl border-2 border-border bg-card px-4 py-3 text-lg font-bold tabular-nums tracking-widest outline-none focus:border-primary"
@@ -289,7 +299,7 @@ function ConfigPage() {
         <div className="flex items-center justify-center gap-6">
           <Link
             to="/"
-            search={{ a, b, title }}
+            search={{ a: panelA, b: panelB, title }}
             className="text-center text-sm font-medium text-muted-foreground underline underline-offset-4"
           >
             Cancel and go back
