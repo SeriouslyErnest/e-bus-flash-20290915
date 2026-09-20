@@ -12,6 +12,7 @@ const panelSchema = fallback(z.string(), "").default("");
 const searchSchema = z.object({
   a: panelSchema,
   b: panelSchema,
+  title: fallback(z.string(), "").default(""),
 });
 
 type Slot = "a" | "b";
@@ -45,7 +46,7 @@ export const Route = createFileRoute("/config")({
 });
 
 function ConfigPage() {
-  const { a, b } = Route.useSearch();
+  const { a, b, title } = Route.useSearch();
   const navigate = useNavigate();
 
   const existingA = parsePanel(a);
@@ -58,6 +59,7 @@ function ConfigPage() {
     () => new Set(existingA?.serviceNos ?? []),
   );
   const [accent, setAccent] = useState<AccentKey>(existingA?.accent ?? "cyan");
+  const [pageTitle, setPageTitle] = useState(title.trim().slice(0, 80));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -108,14 +110,17 @@ function ConfigPage() {
     const value = serializePanel(stopId, [...selected], accent);
     navigate({
       to: "/",
-      search: slot === "a" ? { a: value, b } : { a, b: value },
+      search:
+        slot === "a"
+          ? { a: value, b, title: pageTitle.trim() }
+          : { a, b: value, title: pageTitle.trim() },
     });
   }
 
   function clearPanel() {
     navigate({
       to: "/",
-      search: slot === "a" ? { a: "", b } : { a, b: "" },
+      search: slot === "a" ? { a: "", b, title } : { a, b: "", title },
     });
   }
 
@@ -130,6 +135,26 @@ function ConfigPage() {
           Pick a stop, tap your buses, then press Update.
         </p>
       </header>
+
+      <section className="flex flex-col gap-2">
+        <label
+          htmlFor="page-title"
+          className="text-xs font-bold uppercase tracking-widest text-muted-foreground"
+        >
+          Page title <span className="normal-case opacity-70">(optional)</span>
+        </label>
+        <input
+          id="page-title"
+          value={pageTitle}
+          onChange={(event) => setPageTitle(event.target.value.slice(0, 80))}
+          maxLength={80}
+          placeholder="e.g. Buses from home"
+          className="w-full rounded-2xl border-2 border-border bg-card px-4 py-3 text-base font-bold outline-none focus:border-primary"
+        />
+        <p className="text-xs text-muted-foreground">
+          Leave this blank to show no title above your bus timings.
+        </p>
+      </section>
 
       {/* 1. Which panel */}
       <section className="flex flex-col gap-2">
@@ -264,7 +289,7 @@ function ConfigPage() {
         <div className="flex items-center justify-center gap-6">
           <Link
             to="/"
-            search={{ a, b }}
+            search={{ a, b, title }}
             className="text-center text-sm font-medium text-muted-foreground underline underline-offset-4"
           >
             Cancel and go back
