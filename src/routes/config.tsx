@@ -222,13 +222,21 @@ function ConfigPage() {
         <p className="text-center text-xs text-muted-foreground">
           Tip: after updating, bookmark the page in your browser to save this setup.
         </p>
-        <Link
-          to="/"
-          search={{ a, b }}
-          className="text-center text-sm font-medium text-muted-foreground underline underline-offset-4"
-        >
-          Cancel and go back
-        </Link>
+        <div className="flex items-center justify-center gap-6">
+          <Link
+            to="/"
+            search={{ a, b }}
+            className="text-center text-sm font-medium text-muted-foreground underline underline-offset-4"
+          >
+            Cancel and go back
+          </Link>
+          <Link
+            to="/about"
+            className="text-center text-sm font-medium text-muted-foreground underline underline-offset-4"
+          >
+            About
+          </Link>
+        </div>
       </div>
     </main>
   );
