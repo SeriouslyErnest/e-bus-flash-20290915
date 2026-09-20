@@ -152,11 +152,6 @@ export function BusPanel({
       {isLoading && (
         <p className="py-8 text-center text-sm text-muted-foreground">Loading arrivals…</p>
       )}
-      {isError && (
-        <p className="py-8 text-center text-sm text-destructive">
-          Couldn't load arrivals. Retrying…
-        </p>
-      )}
       {!isLoading && !isError && services.length === 0 && (
         <p className="py-8 text-center text-sm text-muted-foreground">
           No upcoming buses for {serviceNos.join(" / ")}.
@@ -168,6 +163,12 @@ export function BusPanel({
           <ServiceRow key={s.no} service={s} />
         ))}
       </div>
+
+      {isError && (
+        <p className="rounded-xl bg-amber-400/15 px-3 py-2 text-center text-xs font-bold text-amber-300 ring-1 ring-amber-400/40">
+          ⚠ Bus information is not available at the source right now. Retrying automatically…
+        </p>
+      )}
 
       <p className="mt-auto text-[10px] text-muted-foreground">
         Yellow flash: under 5 min · Red flash: under 3 min — time to go!
