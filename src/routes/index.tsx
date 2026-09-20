@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
-import { BusPanel, ACCENT_KEYS, type AccentKey } from "@/components/BusPanel";
+import { BusPanel, type AccentKey } from "@/components/BusPanel";
+import { parsePanel, type PanelConfig } from "@/lib/panel";
 
 const panelSchema = fallback(z.string(), "").default("");
 
@@ -9,30 +10,6 @@ const searchSchema = z.object({
   a: panelSchema,
   b: panelSchema,
 });
-
-type PanelConfig = {
-  stopId: string;
-  serviceNos: string[];
-  title: string;
-  accent?: AccentKey | undefined;
-};
-
-// Panel format: "stopId:svc1,svc2[:accent]" e.g. "61121:104,148:amber"
-function parsePanel(raw: string): PanelConfig | null {
-  const [stopId, services, accent] = raw.split(":");
-  if (!stopId || !/^\d{5}$/.test(stopId)) return null;
-  const serviceNos = (services ?? "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  if (serviceNos.length === 0) return null;
-  return {
-    stopId,
-    serviceNos,
-    title: serviceNos.length === 1 ? `Bus ${serviceNos[0]}` : `Bus ${serviceNos.join(" & ")}`,
-    accent: ACCENT_KEYS.includes(accent as AccentKey) ? (accent as AccentKey) : undefined,
-  };
-}
 
 const DEFAULTS: [PanelConfig, PanelConfig] = [
   { stopId: "69099", serviceNos: ["148"], title: "Bus 148" },
@@ -65,9 +42,13 @@ export const Route = createFileRoute("/")({
 function Index() {
   const { a, b } = Route.useSearch();
 
+  const parsedLeft = parsePanel(a);
+  const parsedRight = parsePanel(b);
+  const usingDefaults = !parsedLeft && !parsedRight && !a.trim() && !b.trim();
+
   const panels: Array<{ config: PanelConfig; accent: AccentKey }> = [];
-  const left = parsePanel(a) ?? (a ? null : DEFAULTS[0]);
-  const right = parsePanel(b) ?? (b ? null : DEFAULTS[1]);
+  const left = parsedLeft ?? (usingDefaults ? DEFAULTS[0] : null);
+  const right = parsedRight ?? (usingDefaults ? DEFAULTS[1] : null);
   if (left) panels.push({ config: left, accent: left.accent ?? "cyan" });
   if (right) panels.push({ config: right, accent: right.accent ?? "amber" });
 
@@ -75,9 +56,12 @@ function Index() {
     <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-4 p-4">
       <div className="flex flex-col gap-4 md:flex-row">
         {panels.length === 0 && (
-          <p className="py-16 text-center text-sm text-muted-foreground">
-            Add panels via the URL, e.g. <code>?a=69099:148&b=61121:104,148</code>
-          </p>
+          <div className="w-full py-16 text-center">
+            <p className="text-base font-bold">No bus stops chosen yet</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Tap the button below to pick a bus stop and your buses.
+            </p>
+          </div>
         )}
         {panels.map(({ config, accent }) => (
           <BusPanel

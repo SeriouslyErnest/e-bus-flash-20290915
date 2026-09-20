@@ -2,7 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { useState } from "react";
-import { fetchArrivals } from "@/lib/bus";
+import { fetchArrivals, STOP_ID_RE } from "@/lib/bus";
+import { parsePanel, serializePanel } from "@/lib/panel";
 import { ACCENT_KEYS, ACCENT_SWATCH, type AccentKey } from "@/components/BusPanel";
 import { cn } from "@/lib/utils";
 
@@ -47,30 +48,45 @@ function ConfigPage() {
   const { a, b } = Route.useSearch();
   const navigate = useNavigate();
 
+  const existingA = parsePanel(a);
+  const existingB = parsePanel(b);
+
   const [slot, setSlot] = useState<Slot>("a");
-  const [stopId, setStopId] = useState("");
+  const [stopId, setStopId] = useState(existingA?.stopId ?? "");
   const [services, setServices] = useState<string[] | null>(null);
-  const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [accent, setAccent] = useState<AccentKey>("cyan");
+  const [selected, setSelected] = useState<Set<string>>(
+    () => new Set(existingA?.serviceNos ?? []),
+  );
+  const [accent, setAccent] = useState<AccentKey>(existingA?.accent ?? "cyan");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const stopValid = /^\d{5}$/.test(stopId);
+  const stopValid = STOP_ID_RE.test(stopId);
   const canUpdate = stopValid && selected.size > 0;
 
+  function pickSlot(s: Slot) {
+    setSlot(s);
+    const existing = s === "a" ? existingA : existingB;
+    setStopId(existing?.stopId ?? "");
+    setSelected(new Set(existing?.serviceNos ?? []));
+    setAccent(existing?.accent ?? (s === "a" ? "cyan" : "amber"));
+    setServices(null);
+    setError(null);
+  }
+
   async function loadBuses() {
-    if (!stopValid) return;
+    if (!stopValid || loading) return;
     setLoading(true);
     setError(null);
     setServices(null);
-    setSelected(new Set());
     try {
       const data = await fetchArrivals(stopId);
-      const nos = data.map((s) => s.no);
+      const nos = Array.from(new Set(data.map((s) => s.no)));
       if (nos.length === 0) {
         setError("No buses found at that stop. Check the 5-digit code on the bus stop sign.");
       }
       setServices(nos);
+      setSelected((prev) => new Set([...prev].filter((no) => nos.includes(no))));
     } catch {
       setError("Couldn't reach the bus stop. Check the code and try again.");
     } finally {
@@ -88,12 +104,23 @@ function ConfigPage() {
   }
 
   function update() {
-    const value = `${stopId}:${[...selected].join(",")}:${accent}`;
+    if (!canUpdate) return;
+    const value = serializePanel(stopId, [...selected], accent);
     navigate({
       to: "/",
       search: slot === "a" ? { a: value, b } : { a, b: value },
     });
   }
+
+  function clearPanel() {
+    navigate({
+      to: "/",
+      search: slot === "a" ? { a: "", b } : { a, b: "" },
+    });
+  }
+
+  const busOptions = services ?? [...selected];
+
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-md flex-col gap-6 p-4 pb-10">
@@ -110,24 +137,27 @@ function ConfigPage() {
           1 · Which panel?
         </h2>
         <div className="grid grid-cols-2 gap-2">
-          {(["a", "b"] as Slot[]).map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => {
-                setSlot(s);
-                setAccent(s === "a" ? "cyan" : "amber");
-              }}
-              className={cn(
-                "rounded-2xl border-2 px-4 py-3 text-sm font-bold transition-colors",
-                slot === s
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border bg-card text-foreground",
-              )}
-            >
-              {s === "a" ? "Left panel" : "Right panel"}
-            </button>
-          ))}
+          {(["a", "b"] as Slot[]).map((s) => {
+            const existing = s === "a" ? existingA : existingB;
+            return (
+              <button
+                key={s}
+                type="button"
+                onClick={() => pickSlot(s)}
+                className={cn(
+                  "rounded-2xl border-2 px-4 py-3 text-sm font-bold transition-colors",
+                  slot === s
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-card text-foreground",
+                )}
+              >
+                {s === "a" ? "Left panel" : "Right panel"}
+                <span className="mt-0.5 block text-[10px] font-medium opacity-80">
+                  {existing ? `Stop ${existing.stopId}` : "Empty"}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </section>
 
@@ -160,13 +190,13 @@ function ConfigPage() {
       </section>
 
       {/* 3. Buses */}
-      {services && services.length > 0 && (
+      {busOptions.length > 0 && (
         <section className="flex flex-col gap-2">
           <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
             3 · Tap your buses
           </h2>
           <div className="grid grid-cols-3 gap-2">
-            {services.map((no) => (
+            {busOptions.map((no) => (
               <button
                 key={no}
                 type="button"
@@ -186,7 +216,7 @@ function ConfigPage() {
       )}
 
       {/* 4. Colour */}
-      {services && services.length > 0 && (
+      {busOptions.length > 0 && (
         <section className="flex flex-col gap-2">
           <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
             4 · Panel colour
@@ -219,6 +249,15 @@ function ConfigPage() {
         >
           Update
         </button>
+        {(slot === "a" ? existingA : existingB) && (
+          <button
+            type="button"
+            onClick={clearPanel}
+            className="w-full rounded-full border-2 border-border px-6 py-3 text-sm font-bold text-muted-foreground"
+          >
+            Remove this panel
+          </button>
+        )}
         <p className="text-center text-xs text-muted-foreground">
           Tip: after updating, bookmark the page in your browser to save this setup.
         </p>
