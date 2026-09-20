@@ -6,9 +6,9 @@ export type BusArrival = {
 
 export type BusService = {
   no: string;
-  next?: BusArrival;
-  next2?: BusArrival;
-  next3?: BusArrival;
+  next?: BusArrival | undefined;
+  next2?: BusArrival | undefined;
+  next3?: BusArrival | undefined;
 };
 
 export const STOP_ID_RE = /^\d{5}$/;
