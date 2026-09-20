@@ -14,7 +14,7 @@ type PanelConfig = {
   stopId: string;
   serviceNos: string[];
   title: string;
-  accent?: AccentKey;
+  accent?: AccentKey | undefined;
 };
 
 // Panel format: "stopId:svc1,svc2[:accent]" e.g. "61121:104,148:amber"
