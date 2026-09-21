@@ -11,7 +11,7 @@ export type PanelConfig = {
 const SERVICE_RE = /^[A-Za-z0-9]{1,5}$/;
 const MAX_SERVICES = 12;
 
-/** Panel format: "stopId:svc1,svc2[:accent]" e.g. "61121:104,148:amber" */
+/** Panel format: "stopId:svc1,svc2[:accent]" e.g. "14141:100:cyan" */
 export function parsePanel(raw: string): PanelConfig | null {
   if (typeof raw !== "string" || raw.length > 120) return null;
   const [stopId, services, accent] = raw.split(":");
