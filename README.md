@@ -14,7 +14,7 @@ The hosted app is already live. You don't have to fork or run anything to use it
 
 1. Open the link above, then tap **Change stops & buses** at the bottom of the page.
 2. Pick the **left** or **right** panel and enter the **5-digit bus stop code**
-   printed on your bus stop sign (for example `69099`).
+   printed on your bus stop sign (for example `14141`).
 3. Tap **Show buses** — the services that serve that stop load automatically.
    Tick the ones you take, and pick a panel colour.
 4. (Optional) Type a **Page title** — this becomes the name your browser uses
@@ -27,7 +27,7 @@ The hosted app is already live. You don't have to fork or run anything to use it
 The URL carries everything, for example:
 
 ```
-https://e-bus-flash-20290915.lovable.app/?a=69099:148:cyan&b=61121:104,148:amber&title=Buses%20from%20home
+https://e-bus-flash-20290915.lovable.app/?a=14141:100:cyan&title=Buses%20from%20home
 ```
 
 Format: `?a=<stopId>:<bus1>,<bus2>:<colour>&b=<stopId>:<buses>:<colour>&title=<text>`

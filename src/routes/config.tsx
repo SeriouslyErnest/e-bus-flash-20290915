@@ -206,7 +206,7 @@ function ConfigPage() {
               setError(null);
             }}
             inputMode="numeric"
-            placeholder="e.g. 69099"
+            placeholder="e.g. 14141"
             className="min-w-0 flex-1 rounded-2xl border-2 border-border bg-card px-4 py-3 text-lg font-bold tabular-nums tracking-widest outline-none focus:border-primary"
           />
           <button
